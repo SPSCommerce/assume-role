@@ -103,6 +103,7 @@ func assumeRole(role, mfa string) (*credentials, error) {
 		"assume-role",
 		"--output", "json",
 		"--role-arn", role,
+		"--profile", role,
 		"--role-session-name", "cli",
 	}
 	if mfa != "" {
