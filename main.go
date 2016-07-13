@@ -22,11 +22,12 @@ func usage() {
 }
 
 func main() {
+
 	if len(os.Args) < 2 {
 		usage()
 		os.Exit(1)
 	}
-
+	profile := os.Args[1]
 	role := os.Args[1]
 	args := os.Args[2:]
 
@@ -44,7 +45,7 @@ func main() {
 		cleanEnv()
 	}
 
-	creds, err := assumeRole(roleConfig.Role, roleConfig.MFA)
+	creds, err := assumeRole(roleConfig.Role, roleConfig.MFA, profile)
 	must(err)
 
 	if len(args) == 0 {
@@ -97,13 +98,13 @@ func printCredentials(role string, creds *credentials) {
 }
 
 // assumeRole assumes the given role and returns the temporary STS credentials.
-func assumeRole(role, mfa string) (*credentials, error) {
+func assumeRole(role, mfa string, profile string) (*credentials, error) {
 	args := []string{
 		"sts",
 		"assume-role",
 		"--output", "json",
 		"--role-arn", role,
-		"--profile", role,
+		"--profile", profile,
 		"--role-session-name", "cli",
 	}
 	if mfa != "" {
@@ -113,7 +114,6 @@ func assumeRole(role, mfa string) (*credentials, error) {
 			readTokenCode(),
 		)
 	}
-
 	b := new(bytes.Buffer)
 	cmd := exec.Command("aws", args...)
 	cmd.Stdout = b
